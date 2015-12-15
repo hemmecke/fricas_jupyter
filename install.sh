@@ -170,13 +170,13 @@ echo ----------------------------------------
 echo Install Jupyer Kernel Spec : kernel.json
 echo ----------------------------------------
 
-if [ ! -d "./ifricas" ]; then
-    mkdir ./ifricas ;
+kspec=./ifricas/kernel.json
+kspecdir=$(dirname $kspec)
+if [ ! -d "$kspecdir" ]; then
+    mkdir $kspecdir
 fi
 
-kspec=./ifricas/kernel.json
-
-echo '{"argv": ['"\"$install_dir/iSPAD\""',"{connection_file}"],' > $kspec
+echo '{"argv": ['"\"$install_dir/ispad.sh\""',"{connection_file}"],' > $kspec
 echo '"codemirror_mode": "shell",' >> $kspec
 echo '"display_name": "FriCAS",' >> $kspec
 echo '"language": "spad"}' >> $kspec
@@ -184,7 +184,7 @@ echo kernel.json written to $kspec
 
 
 
-if jupyter kernelspec install --user ./ifricas ; then
+if jupyter kernelspec install --user $kspecdir ; then
     jupyter kernelspec list ;
     echo $kernel_spec_ok ; 
 else
@@ -199,16 +199,29 @@ echo Installing iSPAD binary
 echo -----------------------
 
 if [ ! -d "$install_dir" ]; then
-    mkdir $install_dir ;
+    mkdir -p "$install_dir" ;
     echo $id_created ;
 fi
 
-if cp -v ./iSPAD $install_dir ; then
+absolute_install_dir=$(cd "$install_dir"; pwd)
+
+if cp -v ./iSPAD "$install_dir" ; then
     echo $install_ispad_ok ;
 else
     echo $install_ispad_failed ;
     exit 1
 fi
+
+ispad="$install_dir/ispad.sh"
+echo "#!/bin/sh"                                > $ispad
+echo "AXIOM=$AXIOM"                            >> $ispad
+echo "export AXIOM"                            >> $ispad
+echo "ALDOR_COMPILER=aldor"                    >> $ispad
+echo "export ALDOR_COMPILER"                   >> $ispad
+echo "exec $absolute_install_dir/iSPAD" '"$@"' >> $ispad
+chmod +x $ispad
+
+
 
 
 # Congratulations
