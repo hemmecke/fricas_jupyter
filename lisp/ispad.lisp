@@ -305,10 +305,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 (defparameter +ISPAD-GUARD+ t)  
 (defparameter +TEX-PREFIX+ (concatenate 'string  
     "\\("        
-    "\\def\\sp{^}\\def\\sb{_}\\def\\leqno(#1){}"
-    "\\def\\erf{\\mathrm{erf}}\\def\\sinh{\\mathrm{sinh}}"
-    "\\def\\zag#1#2{{{\\left.{#1}\\right|}\\over{\\left|{#2}\\right.}}}"
-    "\\def\\csch{\\mathrm{csch}}"
     "\\require{color}"
     "\\)"
 ))
@@ -1410,7 +1406,7 @@ to be displayed by the Fishbowl/IPython frontend."))
 (defmethod render-latex ((value t))
     (if (filename-type-p value) nil
       (let ((tex (get-tex value)))
-         (if boot::|$texFormat|
+         (if boot::|$mathjaxFormat|
            (if (has-type value)
              (let ((ts (get-type value)))
                (concstr (list +TEX-PREFIX+ 
@@ -1588,13 +1584,13 @@ to be displayed by the Fishbowl/IPython frontend."))
 (defun ispad-eval (s)
   (let ((*package* (find-package :boot)))
     (let ((tmpout (make-string-output-stream))
-           (save boot::|$texOutputStream|))
-        (setq boot::|$texOutputStream| tmpout)
+           (save boot::|$mathjaxOutputStream|))
+        (setq boot::|$mathjaxOutputStream| tmpout)
         ;(setq boot::|$IOindex| nil)
         (let ((alg (boot::|parseAndEvalToString| s))
         ;(let ((alg (boot::|parseAndInterpToString| s))
-              (tex (get-output-stream-string boot::|$texOutputStream|)))
-          (setq boot::|$texOutputStream| save)
+              (tex (get-output-stream-string boot::|$mathjaxOutputStream|)))
+          (setq boot::|$mathjaxOutputStream| save)
             (list alg tex)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
